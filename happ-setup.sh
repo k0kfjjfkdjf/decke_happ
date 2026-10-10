@@ -6,7 +6,8 @@ set -euo pipefail
 [ "$EUID" -eq 0 ] && { echo "Запусти без sudo — пароль скрипт спросит сам."; exit 1; }
 
 # На Steam Deck у пользователя deck по умолчанию нет пароля, а sudo без него не работает.
-if [ "$(passwd -S "$USER" 2>/dev/null | awk '{print $2}')" != "P" ]; then
+PW_STATUS=$(passwd -S "$USER" 2>/dev/null | awk '{print $2}' || true)
+if [ "$PW_STATUS" = "NP" ] || [ "$PW_STATUS" = "L" ]; then
   echo ">> У пользователя $USER нет пароля. Придумай его сейчас (нужен для sudo):"
   passwd
 fi
